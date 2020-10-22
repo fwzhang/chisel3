@@ -180,6 +180,35 @@ class NamePluginSpec extends ChiselFlatSpec with Utils {
     }
   }
 
+  "autoSeed" should "NOT override automatic naming for IO" in {
+    class Test extends RawModule {
+      {
+        val a = IO(Output(UInt(3.W)))
+        a.autoSeed("b")
+      }
+    }
+
+    aspectTest(() => new Test) {
+      top: Test =>
+        Select.ios(top).map(_.instanceName) should be (List("a"))
+    }
+  }
+
+
+  "autoSeed" should "override automatic naming for non-IO" in {
+    class Test extends MultiIOModule {
+      {
+        val a = Wire(UInt(3.W))
+        a.autoSeed("b")
+      }
+    }
+
+    aspectTest(() => new Test) {
+      top: Test =>
+        Select.wires(top).map(_.instanceName) should be (List("b"))
+    }
+  }
+
   "Unapply assignments" should "still be named" in {
     class Test extends MultiIOModule {
       {
