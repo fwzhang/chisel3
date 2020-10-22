@@ -132,7 +132,7 @@ class ChiselComponent(val global: Global) extends PluginComponent with TypingTra
         if (shouldMatchData(dd) && inBundle(dd)) {
           val TermName(str: String) = name
           val newRHS = transform(rhs)  // chisel3.internal.plugin.autoNameRecursively
-          val named = q"chisel3.internal.plugin.autoNameRecursively($str, $newRHS)"
+          val named = q"chisel3.internal.plugin.autoNameRecursively($str)($newRHS)"
           treeCopy.ValDef(dd, mods, name, tpt, localTyper typed named)
         }
         // If a Data or a Memory, get the name and a prefix
@@ -140,13 +140,13 @@ class ChiselComponent(val global: Global) extends PluginComponent with TypingTra
           val TermName(str: String) = name
           val newRHS = transform(rhs)
           val prefixed = q"chisel3.experimental.prefix.apply[$tpt](name=$str)(f=$newRHS)"
-          val named = q"chisel3.internal.plugin.autoNameRecursively($str, $prefixed)"
+          val named = q"chisel3.internal.plugin.autoNameRecursively($str)($prefixed)"
           treeCopy.ValDef(dd, mods, name, tpt, localTyper typed named)
         // If an instance, just get a name but no prefix
         } else if (shouldMatchModule(dd)) {
           val TermName(str: String) = name
           val newRHS = transform(rhs)
-          val named = q"chisel3.internal.plugin.autoNameRecursively($str, $newRHS)"
+          val named = q"chisel3.internal.plugin.autoNameRecursively($str)($newRHS)"
           treeCopy.ValDef(dd, mods, name, tpt, localTyper typed named)
         } else {
           // Otherwise, continue
